@@ -1,0 +1,9 @@
+Respond with content coming from a File
+//Send index.htm with default content type
+request->send(SPIFFS, "/index.htm");
+
+//Send index.htm as text
+request->send(SPIFFS, "/index.htm", "text/plain");
+
+//Download index.htm
+request->send(SPIFFS, "/index.htm", String(), true);
