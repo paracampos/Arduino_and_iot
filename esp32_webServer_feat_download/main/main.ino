@@ -15,6 +15,8 @@ TwoWire I2Cone = TwoWire(1);
 //define server PORT
 AsyncWebServer server(80);
 
+String lastfile = "/a.txt";
+
 void setup()
 {
     Serial.begin(115200);
@@ -44,7 +46,7 @@ void setup()
 
     //send txt as a file
     server.on("/filehard", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/a.txt", String(), true);
+        request->send(SPIFFS, lastfile, String(), true);
     });
 
     //send html a downloadable file, test only
