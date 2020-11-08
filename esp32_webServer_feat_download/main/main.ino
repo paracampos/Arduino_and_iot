@@ -20,6 +20,7 @@ String lastfile = "/a.txt";
 void setup()
 {
     Serial.begin(115200);
+    delay(500);
     startWifi();
     startBME();
 
