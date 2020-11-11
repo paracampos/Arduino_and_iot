@@ -1,61 +1,86 @@
 #include "WiFi.h"
+#include <Wire.h>
 #include "ESPAsyncWebServer.h"
 #include <SPIFFS.h>
+#include "FS.h"
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
+#include "RTClib.h"
+
+//BME280 i2c PINS
+#define SDA_1 21
+#define SCL_1 22
+
+#define SDA_2 33
+#define SCL_2 32
+
+#define uS_TO_S_FACTOR 1000000
+#define TIME_TO_SLEEP 10
+
+RTC_DS3231 rtc;
+TwoWire I2Cone = TwoWire(0);
+TwoWire I2Ctwo = TwoWire(1);
+Adafruit_BME280 bme;
+Adafruit_BME280 bme_2;
+AsyncWebServer server(80);
+
+String lastfile = "/a.txt";
+String dataline();
+//bool print_wakeup_reason();
+bool modo = false;
 
 //sensor values
 float temperature = 1;
 float humidity = 1;
 
-//objects
-Adafruit_BME280 bme;
-TwoWire I2Cone = TwoWire(1);
-
-//define server PORT
-AsyncWebServer server(80);
-
-String lastfile = "/a.txt";
-
 void setup()
 {
-    Serial.begin(115200);
-    delay(500);
-    startWifi();
-    startBME();
+    Serial.begin(9600);
+    startSPIFFS();
+    modo = print_wakeup_reason();
 
-    if (!SPIFFS.begin())
+    if (modo)
     {
-        Serial.println("An Error has occurred while mounting SPIFFS");
-        return;
+        I2Cone.begin(SDA_1, SCL_1, 100000);
+        I2Ctwo.begin(SDA_2, SCL_2, 100000);
+        startRTC();
+        startBME();
+        deleteFile(SPIFFS, "/a.txt");
+        writeFile(SPIFFS, "/a.txt", "Start");
     }
-
-    //home page
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", String(), false);
-    });
-
-    //tries to direct send the txt
-    server.on("/direct", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/a.txt");
-    });
-
-    //send txt as a plain text
-    server.on("/plain", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/a.txt", "text/plain");
-    });
-
-    //send txt as a file
-    server.on("/filehard", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, lastfile, String(), true);
-    });
-
-    //send html a downloadable file, test only
-    server.on("/file", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", String(), true);
-    });
-
-    server.begin();
+    else
+    {
+        startWifi();
+        delay(2000);
+        //home page
+        server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(SPIFFS, "/index.html", String(), false);
+        });
+        //tries to direct send the txt
+        server.on("/direct", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(SPIFFS, "/b.txt");
+        });
+        //send txt as a file
+        server.on("/filehard", HTTP_GET, [](AsyncWebServerRequest *request) {
+            request->send(SPIFFS, lastfile, String(), true);
+        });
+        server.begin();
+    }
 }
 
-void loop() {}
+void loop()
+{
+    if (modo)
+    {
+        printValues();
+        //delay(3000);
+        String buf = dataline();
+        char __dataFileName[sizeof(buf)];
+        buf.toCharArray(__dataFileName, sizeof(__dataFileName));
+        appendFile(SPIFFS, "/a.txt", __dataFileName);
+        startSleep();
+    }
+
+    if (millis() >= 30000)
+        startSleep();
+}
