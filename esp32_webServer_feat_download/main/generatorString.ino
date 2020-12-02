@@ -6,13 +6,8 @@ String dataline()
   exportString += ":";
   exportString += String(now.minute());
   //  exportString += "a";
-  exportString += String(bme.readTemperature());
+  exportString += String(sht31.readTemperature());
   // exportString += "a";
-  //exportString += String(bme.readHumidity());
-  //exportString += "a";
-  exportString += String(bme_2.readTemperature());
-  //exportString += "a";
-  //exportString += String(bme_2.readHumidity());
-  //exportString += "\n";
+  //exportString += String(sht31.readHumidity());
   return exportString;
 }
