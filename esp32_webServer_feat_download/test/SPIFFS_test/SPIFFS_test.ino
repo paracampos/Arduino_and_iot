@@ -1,7 +1,7 @@
 #include "SPIFFS.h"
  
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");

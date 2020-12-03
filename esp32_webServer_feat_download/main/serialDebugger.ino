@@ -1,6 +1,5 @@
 void printValues()
 {
-  //Serial.print(millis());
   DateTime now = rtc.now();
   Serial.print(now.day(), DEC);
   Serial.print("/");
@@ -19,6 +18,4 @@ void printValues()
   Serial.print(" Umidade 1 = ");
   Serial.print(sht31.readHumidity());
   Serial.println(" %");
-
-  delay(1000);
 }

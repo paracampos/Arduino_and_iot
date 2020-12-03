@@ -16,7 +16,6 @@ AsyncWebServer server(80);
 
 String lastfile = "/a.txt";
 String dataline();
-//bool print_wakeup_reason();
 bool modo = false;
 
 //sensor values
@@ -27,14 +26,14 @@ void setup()
 {
   Serial.begin(9600);
   startSPIFFS();
-  modo = !print_wakeup_reason();
+  modo = print_wakeup_reason();
 
-  if (modo)
+  if (true)
   {
     startRTC();
     startSHT31();
-    deleteFile(SPIFFS, "/a.txt");
-    writeFile(SPIFFS, "/a.txt", "Start");
+    //deleteFile(SPIFFS, "/a.txt");
+    //writeFile(SPIFFS, "/a.txt", "Start");
   }
   else
   {
@@ -58,10 +57,11 @@ void setup()
 
 void loop()
 {
-  if (modo)
+  DateTime now = rtc.now();
+  if ((now.minute() == 0 || now.minute() == 20 || now.minute() == 40) && now.second() == 0)
+  //if (true)
   {
     printValues();
-    //delay(3000);
     for (byte i = 0; i <= 2; i++)
     {
       String buf = dataline(i);
@@ -69,9 +69,6 @@ void loop()
       buf.toCharArray(__dataFileName, sizeof(__dataFileName));
       appendFile(SPIFFS, "/a.txt", __dataFileName);
     }
-    //startSleep();
+    delay(1000);
   }
-
-  //if (millis() >= 30000)
-  //  startSleep();
 }
