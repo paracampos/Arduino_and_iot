@@ -62,10 +62,13 @@ void loop()
   {
     printValues();
     //delay(3000);
-    String buf = dataline();
-    char __dataFileName[sizeof(buf)];
-    buf.toCharArray(__dataFileName, sizeof(__dataFileName));
-    appendFile(SPIFFS, "/a.txt", __dataFileName);
+    for (byte i = 0; i <= 2; i++)
+    {
+      String buf = dataline(i);
+      char __dataFileName[sizeof(buf)];
+      buf.toCharArray(__dataFileName, sizeof(__dataFileName));
+      appendFile(SPIFFS, "/a.txt", __dataFileName);
+    }
     //startSleep();
   }
 

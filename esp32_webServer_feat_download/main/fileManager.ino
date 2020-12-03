@@ -10,7 +10,8 @@ void appendFile(fs::FS &fs, const char *path, const char *message)
   }
   if (file.print(message))
   {
-    Serial.println("Message appended");
+    Serial.print("Message appended: ");
+    Serial.println(message);
   }
   else
   {
